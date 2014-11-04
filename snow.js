@@ -30,7 +30,7 @@ var Snow = function(numFlakes) {
   this.move = function() {
     var now = new Date().getTime(); // Capture current duration into the fall, so we know how far the flake should be moved
 
-    for(var i=0; i<this.numFlakes; i++) {
+    for(var i=0; i<this.flakes.length; i++) {
       var flake = this.flakes[i];
 
       if(flake.lastMoved == null) {
@@ -71,7 +71,7 @@ var Snow = function(numFlakes) {
   };
 
   this.render = function() {
-    for(var i=0; i<this.numFlakes; i++) {
+    for(var i=0; i<this.flakes.length; i++) {
       var flake = this.flakes[i];
       flake.element.style.transform = "translate("+flake.x+"px, "+flake.y+"px)";
     }
@@ -91,7 +91,7 @@ var Snow = function(numFlakes) {
 
   this.stop = function() {
     window.cancelAnimationFrame(this.timer);
-    for(var i=0; i<this.numFlakes; i++) {
+    for(var i=0; i<this.flakes.length; i++) {
       var flake = this.flakes[i];
       flake.lastMoved = null;
     }
@@ -107,6 +107,21 @@ var Snow = function(numFlakes) {
       element.snowCover.style.top = element.offsetTop+ "px";
       element.snowCover.style.boxShadow = "0px 0px 0px 0px #ffffff";
       this.container.appendChild(element.snowCover);
+
+      var self = this;
+
+      var onClickHandler = function() {
+        var snowDepth = parseInt(element.snowCover.style.height, 10) || 1;
+        var numNewFlakes = parseInt(element.offsetWidth / (snowDepth+2));
+        for(var i=0; i<numNewFlakes; i++) {
+          self.flakes.push(new Flake(self.container, 7, snowDepth, element.offsetLeft+(i*(snowDepth+2))+Math.floor(Math.random()*10), element.offsetTop));
+        }
+        self.container.removeChild(element.snowCover);
+        delete(element.snowCover);
+        element.removeEventListener("click", onClickHandler);
+      };
+      element.addEventListener("click", onClickHandler);
+
     }
     else {
       var matches = element.snowCover.style.boxShadow.match(/0px 0px (\d+px) (\d+px)/);
@@ -134,7 +149,7 @@ var Snow = function(numFlakes) {
     this.speed = speed || 16;   /* Nice looking flake speeds are approximately 13ms per pixel to 20ms per pixel */
     this.container = container;
 
-    this.reset();
+    this.reset(x, y);
 
     this.element = document.createElement("div");
     this.element.style.width = this.element.style.height = size + "px";
@@ -144,9 +159,9 @@ var Snow = function(numFlakes) {
     container.appendChild(this.element);
   };
 
-  Flake.prototype.reset = function() {
-    this.x = Math.floor((Math.random()*this.container.offsetWidth*3) - this.container.offsetWidth); // Plot more snowflakes than can fit on screen, in case of sideways velocity
-    this.y = -(Math.floor(Math.random()*this.container.offsetHeight)+10);  // Plot snowflakes up to "-screenheight" above viewable area, to ensure an even mix and prevent clumping when starting large numbers or flakes at once
+  Flake.prototype.reset = function(x, y) {
+    this.x = x || Math.floor((Math.random()*this.container.offsetWidth*3) - this.container.offsetWidth); // Plot more snowflakes than can fit on screen, in case of sideways velocity
+    this.y = y || -(Math.floor(Math.random()*this.container.offsetHeight)+10);  // Plot snowflakes up to "-screenheight" above viewable area, to ensure an even mix and prevent clumping when starting large numbers or flakes at once
     this.lastMoved = null;
   };
 
