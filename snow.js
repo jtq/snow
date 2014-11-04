@@ -1,6 +1,6 @@
 var Snow = function(numFlakes) {
   this.container = null;
-  this.gravity = { x: 0, y: 1 };
+  this.gravity = { x: 1, y: 1 };
   this.snowColour = "#ffffff";
 
   this.flakes = [];
@@ -48,7 +48,9 @@ var Snow = function(numFlakes) {
         if(obj.offsetTop > flake.y && obj.offsetTop < (flake.y+flake.size) &&
            obj.offsetLeft < flake.x && (obj.offsetLeft+obj.offsetWidth) > (flake.x+flake.size)) {
 
-          flake.restart = true;
+          // Restart flake
+          flake.y = -(Math.floor(Math.random()*this.container.offsetHeight)+10);
+          flake.x = Math.floor(Math.random()*this.container.offsetWidth);
 
           if(Math.floor(Math.random()*this.settle.chance) == 0) {
             this.settleSnow(obj);
@@ -57,13 +59,13 @@ var Snow = function(numFlakes) {
       }
 
       if(flake.y > this.container.offsetHeight) {
-        flake.restart = true;
+        flake.y = -10;
+        flake.x = Math.floor(Math.random()*this.container.offsetWidth);
       }
 
-      if(flake.restart) {
-        flake.y = -(Math.floor(Math.random()*this.container.offsetHeight)+10);
-        flake.x = Math.floor(Math.random()*this.container.offsetWidth);
-        flake.restart = false;
+      if(flake.x > this.container.offsetWidth) {
+        flake.x = -10;
+        flake.y = Math.floor(Math.random()*this.container.offsetHeight);
       }
 
       flake.lastMoved = now;
@@ -121,13 +123,12 @@ var Snow = function(numFlakes) {
     this.y = y || -(Math.floor(Math.random()*container.offsetHeight)+10);
     this.lastMoved = null;
     this.speed = speed || 16;   /* Nice looking flake speeds are approximately 13ms per pixel to 20ms per pixel */
-    this.restart = false;
 
     this.element = document.createElement("div");
     this.element.style.width = this.element.style.height = size + "px";
     this.element.style.borderRadius = Math.ceil(size/2) + "px";
 
-    this.element.className = "snow-flake";
+    this.element.className = "snow";
     container.appendChild(this.element);
   };
 
