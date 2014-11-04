@@ -1,0 +1,48 @@
+<html>
+  <head>
+    <title>Snow demo</title>
+
+    <style type="text/css">
+
+body {
+    position: relative;
+}
+
+#snow-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.5;
+    background-color: #000000;
+    pointer-events: none;   /* Disable for IE9/10, or investigate something like https://github.com/kmewhort/pointer_events_polyfill */
+}
+
+.snow-flake {
+    position: absolute;
+    background-color: #ffffff;
+    box-shadow: 0 0 3px 3px #ffffff;
+}
+
+    </style>
+    <script type="text/javascript" src="snow.js"></script>
+  </head>
+  <body onload="snow = new Snow(); snow.init('snow-container'); snow.render();">
+
+    <h1>Title</h1>
+
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer ac pharetra diam, sed ultrices tortor. Donec in lorem tristique, pharetra ex nec, fringilla nulla. Pellentesque rutrum finibus risus, nec tristique ante gravida tempus. Donec vel arcu gravida, varius dui vitae, euismod nisl. Phasellus efficitur vel leo a consectetur. Morbi condimentum auctor pulvinar. Mauris sit amet mollis leo, in fermentum felis. Curabitur scelerisque a mauris at consequat. Etiam eu ullamcorper odio. Nam porttitor tristique felis ut iaculis. Integer tempus laoreet turpis, sed consectetur orci tincidunt ut. Etiam dui nulla, eleifend at libero vel, dignissim suscipit lorem. Morbi at arcu molestie, dictum mi quis, gravida libero. Nunc feugiat est vitae tellus rutrum vulputate. Integer vel ligula sit amet ex egestas mattis sit amet quis sapien. Vestibulum lobortis, erat vel dapibus luctus, purus nisi semper sem, ut pulvinar tortor magna quis ligula.</p>
+
+    <p>In nec nisl finibus, tristique elit quis, fringilla magna. Curabitur mauris quam, tincidunt sit amet tristique ut, facilisis vel lorem. Nam condimentum sit amet odio at egestas. Pellentesque efficitur lobortis orci, id varius ligula posuere non. Nam ut sapien semper felis eleifend fringilla. Aliquam vel elit magna. Suspendisse porta urna ac mattis pretium. Donec ut cursus mauris, eu blandit ex. Sed eleifend scelerisque lorem. Nunc interdum est non rhoncus consequat.</p>
+
+    <p>Curabitur nec massa molestie, ultricies risus a, euismod nisi. Pellentesque est nulla, euismod sit amet lacus mattis, euismod pulvinar velit. Mauris rhoncus metus ut nulla varius auctor. Integer felis turpis, dapibus aliquet congue rhoncus, commodo ut tortor. Ut mi libero, tempor ut sodales eget, sagittis ac quam. Morbi nec purus rutrum, fringilla mauris sit amet, viverra lectus. Duis nunc magna, tincidunt at convallis interdum, porta lacinia libero. Etiam finibus turpis ut sodales varius. Duis sodales dolor nec ligula molestie, vitae rhoncus nunc cursus. Praesent nec nulla eleifend, ultrices elit feugiat, euismod ipsum. Praesent nec sapien et risus rhoncus varius. Duis ultrices luctus justo, ut dapibus nisl dictum at. Mauris elit nibh, scelerisque non mauris vel, sollicitudin consequat quam.</p>
+
+    <p><a href="http://www.google.com">Google link</a></p>
+
+    <p><span onclick="javascript:alert('Clicked');">Span with an onclick event handler</span></p>
+
+    <div id="snow-container"></div>
+
+  </body>
+</html>
