@@ -1,6 +1,6 @@
 var Snow = function(numFlakes) {
   this.container = null;
-  this.gravity = { x: 1, y: 1 };
+  this.gravity = { x: 0, y: 1 };
   this.snowColour = "#ffffff";
 
   this.flakes = [];
@@ -98,24 +98,32 @@ var Snow = function(numFlakes) {
   };
 
   this.settleSnow = function(element) {
-    var borderTopWidth = parseInt(element.style.borderTopWidth, 10) || 0;
-    var borderTopColour = Util.getCssHexColour(element.style.borderTopColor);
-
-    // If there's already a border, first flake just changes the colour
-    if(borderTopWidth > 0 && borderTopColour !== this.snowColour) {
-      element.style.borderTopColor = this.snowColour;
+    if(!element.snowCover) {
+      element.snowCover = document.createElement("div");
+      element.snowCover.className = "snow settled";
+      element.snowCover.style.width = element.offsetWidth + "px";
+      element.snowCover.style.height = "0px";
+      element.snowCover.style.left = element.offsetLeft+ "px";
+      element.snowCover.style.top = element.offsetTop+ "px";
+      element.snowCover.style.boxShadow = "0px 0px 0px 0px #ffffff";
+      this.container.appendChild(element.snowCover);
     }
-    else if(borderTopWidth < this.settle.maxDepth) {
+    else {
+      var matches = element.snowCover.style.boxShadow.match(/0px 0px (\d+px) (\d+px)/);
 
-      var marginTop = parseInt(element.style.marginTop, 10) || 0;
+      var blur = parseInt(matches && matches[1], 10) || 0;
+      var spread = parseInt(matches && matches[2], 10) || 0;
 
-      borderTopWidth++;
-      marginTop--;
+      var height = parseInt(element.snowCover.style.height, 10);
 
-      element.style.borderTopWidth = borderTopWidth + "px";
-      element.style.marginTop = marginTop + "px";
-      element.style.borderTopLeftRadius = element.style.borderTopRightRadius = borderTopWidth + "px";
+      if(blur < 3 && spread < 3) {
+        element.snowCover.style.boxShadow = "0px 0px " + (blur+1) + "px " + (spread+1) + "px #ffffff";
+      }
+      else if(height < this.settle.maxDepth) {
+        element.snowCover.style.height = (height + 1) + "px";
+      }
     }
+
   };
 
   var Flake = function(container, speed, size, x, y) {
@@ -132,7 +140,7 @@ var Snow = function(numFlakes) {
     this.element.style.width = this.element.style.height = size + "px";
     this.element.style.borderRadius = Math.ceil(size/2) + "px";
 
-    this.element.className = "snow";
+    this.element.className = "snow flake";
     container.appendChild(this.element);
   };
 
