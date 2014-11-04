@@ -7,6 +7,8 @@ var Snow = function(numFlakes) {
   this.maxFlakeSize = 6;
   this.minFlakeSize = 2;
 
+  this.settleChance = 10; // 1 in X chance of snow settling on a block
+
   this.timer = null;
 
   this.init = function(containerId, numFlakes) {
@@ -36,9 +38,37 @@ var Snow = function(numFlakes) {
       flake.x += this.gravity.x * (timeSinceLastMove / flake.speed);
       flake.y += this.gravity.y * (timeSinceLastMove / flake.speed);
 
+      var physicsTargets = document.querySelectorAll(".physics-target");
+      for(var j=0; j<physicsTargets.length; j++) {
+        var obj = physicsTargets[j];
+        if(obj.offsetTop > flake.y && obj.offsetTop < (flake.y+flake.size) &&
+           obj.offsetLeft < flake.x && (obj.offsetLeft+obj.offsetWidth) > (flake.x+flake.size)) {
+
+          flake.restart = true;
+
+          if(Math.floor(Math.random()*this.settleChance) == 0) {
+            obj.style.borderTopColor = "#ffffff";
+            var borderTopWidth = (parseInt(obj.style.borderTopWidth, 10) || 0);
+            if(borderTopWidth < 5) {
+              borderTopWidth++;
+              obj.style.borderTopWidth = borderTopWidth + "px";
+              obj.style.borderTopLeftRadius = obj.style.borderTopRightRadius = borderTopWidth + "px";
+
+              obj.style.position = "relative";
+              obj.style.marginTop = "-" + borderTopWidth + "px";
+            }
+          }
+        }
+      }
+
       if(flake.y > this.container.offsetHeight) {
+        flake.restart = true;
+      }
+
+      if(flake.restart) {
         flake.y = -(Math.floor(Math.random()*this.container.offsetHeight)+10);
         flake.x = Math.floor(Math.random()*this.container.offsetWidth);
+        flake.restart = false;
       }
 
       flake.lastMoved = now;
@@ -75,6 +105,7 @@ var Snow = function(numFlakes) {
     this.y = y || -(Math.floor(Math.random()*container.offsetHeight)+10);
     this.lastMoved = null;
     this.speed = speed || 16;   /* Nice looking flake speeds are approximately 13ms per pixel to 20ms per pixel */
+    this.restart = false;
 
     this.element = document.createElement("div");
     this.element.style.width = this.element.style.height = size + "px";
