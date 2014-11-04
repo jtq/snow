@@ -1,13 +1,17 @@
 var Snow = function(numFlakes) {
   this.container = null;
   this.gravity = { x: 0, y: 1 };
+  this.snowColour = "#ffffff";
 
   this.flakes = [];
   this.numFlakes = 0;
   this.maxFlakeSize = 6;
   this.minFlakeSize = 2;
 
-  this.settleChance = 10; // 1 in X chance of snow settling on a block
+  this.settle = {
+    chance: 20, // 1 in X chance of snow settling on a block
+    maxDepth: 5
+  };
 
   this.timer = null;
 
@@ -46,17 +50,8 @@ var Snow = function(numFlakes) {
 
           flake.restart = true;
 
-          if(Math.floor(Math.random()*this.settleChance) == 0) {
-            obj.style.borderTopColor = "#ffffff";
-            var borderTopWidth = (parseInt(obj.style.borderTopWidth, 10) || 0);
-            if(borderTopWidth < 5) {
-              borderTopWidth++;
-              obj.style.borderTopWidth = borderTopWidth + "px";
-              obj.style.borderTopLeftRadius = obj.style.borderTopRightRadius = borderTopWidth + "px";
-
-              obj.style.position = "relative";
-              obj.style.marginTop = "-" + borderTopWidth + "px";
-            }
+          if(Math.floor(Math.random()*this.settle.chance) == 0) {
+            this.settleSnow(obj);
           }
         }
       }
@@ -99,6 +94,27 @@ var Snow = function(numFlakes) {
     window.cancelAnimationFrame(this.timer);
   };
 
+  this.settleSnow = function(element) {
+    var borderTopWidth = parseInt(element.style.borderTopWidth, 10) || 0;
+    var borderTopColour = Util.getCssHexColour(element.style.borderTopColor);
+
+    // If there's already a border, first flake just changes the colour
+    if(borderTopWidth > 0 && borderTopColour !== this.snowColour) {
+      element.style.borderTopColor = this.snowColour;
+    }
+    else if(borderTopWidth < this.settle.maxDepth) {
+
+      var marginTop = parseInt(element.style.marginTop, 10) || 0;
+
+      borderTopWidth++;
+      marginTop--;
+
+      element.style.borderTopWidth = borderTopWidth + "px";
+      element.style.marginTop = marginTop + "px";
+      element.style.borderTopLeftRadius = element.style.borderTopRightRadius = borderTopWidth + "px";
+    }
+  };
+
   var Flake = function(container, speed, size, x, y) {
     this.size = size || 2;
     this.x = x || Math.floor(Math.random()*container.offsetWidth);
@@ -113,5 +129,19 @@ var Snow = function(numFlakes) {
 
     this.element.className = "snow-flake";
     container.appendChild(this.element);
+  };
+
+  var Util = function() {};
+  Util.getCssHexColour = function(cssValue) {
+    var matches = null;
+    if(matches = cssValue.match(/^(#\d{1,6})$/)) {
+      return matches[0];
+    }
+    else if(matches = cssValue.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+))?\)$/)) {
+      function hex(x) {
+        return ("0" + parseInt(x).toString(16)).slice(-2);
+      }
+      return "#" + hex(matches[1]) + hex(matches[2]) + hex(matches[3]);
+    }
   };
 };
