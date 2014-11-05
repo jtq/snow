@@ -132,17 +132,23 @@ var Snow = function(numFlakes) {
         requestAnimationFrame(function() {
           for(var k=0; k<clumps.length; k++) {
             var clump = clumps[k];
-            var vHeight = self.container.offsetHeight - clump.offsetTop;
+            var vHeight = self.container.offsetHeight - clump.offsetTop + 50;
             var xDrift = Math.floor(Math.random()*5)-2;
             var rotation = Math.floor(Math.random()*21)-20;
             /* A nice-looking fall-time is about 1000 pixels per second with an ease-in function to simulate gravitational acceleration
             so let's work out what fraction of 1000 the available fall-distance is, and adjust the transition-timing accordingly.
              */
-            var fallTime = (vHeight / 750) * 1;
-            clump.style.transition = "transform "+fallTime+"s ease-in 0.1s, height 0.1s ease-out 0, opacity 0.1";
-            clump.style.transform = "translate("+xDrift+"px, 1000px) rotate("+rotation+"deg)";
+            var fallTime = (vHeight / 1000) * 1;
+            clump.style.transition = "transform "+fallTime+"s ease-in 0.1s, height 0.1s ease-out 0s, opacity 0.1s";
+            clump.style.transform = "translate("+xDrift+"px, "+vHeight+"px) rotate("+rotation+"deg)";
             clump.style.height = (parseInt(clump.style.height, 10)+5) + "px";
             clump.style.opacity = "0.9";
+            clump.addEventListener("transitionend", function (e) {
+              if(e.propertyName === "transform") {
+                var thisClump = e.target || e.srcElement;
+                thisClump.parentNode.removeChild(thisClump);
+              }
+            });
           }
         });
 
