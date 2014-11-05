@@ -156,7 +156,10 @@ var Snow = function(numFlakes) {
         delete(element.snowCover);
         element.removeEventListener("click", onClickHandler);
       };
-      element.addEventListener("click", onClickHandler);
+
+      if(element.className.match("snow-disturbable")) {
+        element.addEventListener("click", onClickHandler);
+      }
 
     }
     else {
