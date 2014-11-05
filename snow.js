@@ -99,23 +99,53 @@ var Snow = function(numFlakes) {
 
   this.settleSnow = function(element) {
     if(!element.snowCover) {
-      element.snowCover = document.createElement("div");
-      element.snowCover.className = "snow settled";
-      element.snowCover.style.width = element.offsetWidth + "px";
-      element.snowCover.style.height = "0px";
-      element.snowCover.style.left = element.offsetLeft+ "px";
-      element.snowCover.style.top = element.offsetTop+ "px";
-      element.snowCover.style.boxShadow = "0px 0px 0px 0px #ffffff";
+      element.snowCover = this.createSnow(element.offsetWidth, 0, element.offsetLeft, element.offsetTop, "0px 0px");
       this.container.appendChild(element.snowCover);
 
       var self = this;
 
       var onClickHandler = function() {
         var snowDepth = parseInt(element.snowCover.style.height, 10) || 1;
-        var numNewFlakes = parseInt(element.offsetWidth / (snowDepth+2));
-        for(var i=0; i<numNewFlakes; i++) {
-          self.flakes.push(new Flake(self.container, 7, snowDepth, element.offsetLeft+(i*(snowDepth+2))+Math.floor(Math.random()*10), element.offsetTop));
+        var numClumps = Math.floor(Math.random()*4)+2;  // Generate between 2 and 5 clumps
+        var clumpWidths = [];
+        var baseClumpWidth = element.offsetWidth / numClumps;
+        for(var i=0; i<numClumps; i++) {  // Set basic clump widths
+          clumpWidths.push(baseClumpWidth);
         }
+        for(var i=0; i<numClumps-1; i++) {  // For each clump except the last, randomly increase or decrease the width of that clump (and adjust the following adjoining clump apropriately)
+          var variation = Math.floor((Math.random()*clumpWidths[i])-(clumpWidths[i]/2)); // Randomly add or remove up to half the basic width from this clump
+          clumpWidths[i] += variation;
+          clumpWidths[i+1] -= variation;
+        }
+
+        var clumps = [];
+
+        var pos = element.offsetLeft;
+        for(var j=0; j<numClumps; j++) {
+          var gap = (j == numClumps-1)? 0 : Math.floor(Math.random()*4)+2;  // 2-5 pixel gap between clumps
+          var snowClump = self.createSnow(clumpWidths[j]-gap, snowDepth, pos, element.offsetTop, element.snowCover.style.boxShadow);
+          clumps.push(snowClump);
+          self.container.appendChild(snowClump);
+          pos += clumpWidths[j];
+        }
+
+        requestAnimationFrame(function() {
+          for(var k=0; k<clumps.length; k++) {
+            var clump = clumps[k];
+            var vHeight = self.container.offsetHeight - clump.offsetTop;
+            var xDrift = Math.floor(Math.random()*5)-2;
+            var rotation = Math.floor(Math.random()*21)-20;
+            /* A nice-looking fall-time is about 1000 pixels per second with an ease-in function to simulate gravitational acceleration
+            so let's work out what fraction of 1000 the available fall-distance is, and adjust the transition-timing accordingly.
+             */
+            var fallTime = (vHeight / 750) * 1;
+            clump.style.transition = "transform "+fallTime+"s ease-in 0.1s, height 0.1s ease-out 0, opacity 0.1";
+            clump.style.transform = "translate("+xDrift+"px, 1000px) rotate("+rotation+"deg)";
+            clump.style.height = (parseInt(clump.style.height, 10)+5) + "px";
+            clump.style.opacity = "0.9";
+          }
+        });
+
         self.container.removeChild(element.snowCover);
         delete(element.snowCover);
         element.removeEventListener("click", onClickHandler);
@@ -139,6 +169,18 @@ var Snow = function(numFlakes) {
       }
     }
 
+  };
+
+  this.createSnow = function(width, height, left, top, boxShadow) {
+    var element = document.createElement("div");
+    element.className = "snow settled";
+    element.style.width = width + "px";
+    element.style.height = height + "px";
+    element.style.left = left + "px";
+    element.style.top = top + "px";
+    element.style.boxShadow = boxShadow;
+
+    return element;
   };
 
   var Flake = function(container, speed, size, x, y) {
